@@ -1,13 +1,16 @@
 package com.task.service;
 
+import com.task.dto.TaskDto;
 import com.task.models.Task;
-import com.task.models.User;
+import com.task.models.UserEntity;
 import com.task.respositry.TaskRepository;
 import com.task.respositry.UserRepository;
+import exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -20,29 +23,38 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-    public List<Task> listAllTasks(String username) {
-        return taskRepository.findByCreatedByUsername(username);
-    }
-
-    public Task createTask(String username, Task task) {
-        User user = userRepository.findByUsername(username).orElseThrow();
+    public Task createTask(String username, TaskDto taskDto) {
+        UserEntity user = userRepository.findByUsername(username).orElseThrow();
+        //UserEntity user = userRepository.findById(task.getCreatedBy().getId()).orElseThrow();
+        Task task = new Task();
+        task.setTitle(taskDto.getTitle());
+        task.setDescription(taskDto.getDescription());
+        task.setStatus(taskDto.getStatus());
+        task.setDueDate(taskDto.getDueDate());
+        task.setPriority(taskDto.getPriority());
         task.setCreatedBy(user);
         return taskRepository.save(task);
     }
-
-    public Task updateTask(String username, Long id, Task task) {
-        Task ex = taskRepository.findByIdAndCreatedByUsername(id, username).orElseThrow();
-        ex.setTitle(task.getTitle());
-        ex.setDescription(task.getDescription());
-        ex.setStatus(task.getStatus());
-        ex.setDueDate(task.getDueDate());
-        ex.setPriority(task.getPriority());
-        return taskRepository.save(ex);
+    public List<Task> getAllTasks(String username) {
+        return taskRepository.findByCreatedByUsername(username);
+    }
+    public Task getTaskById(String username, Long id) {
+        Optional<Task> task =taskRepository.findByIdAndCreatedByUsername(id, username);;
+        return task.orElse(null);
     }
 
-    public void deleteTask(String username, Long id) {
-        Task ex = taskRepository.findByIdAndCreatedByUsername(id, username).orElseThrow();
-        taskRepository.delete(ex);
+    public Task updateTask(String username, Long id, TaskDto taskDto) {
+        Task task = taskRepository.findByIdAndCreatedByUsername(id, username).orElseThrow(() -> new EntityNotFoundException("Task with ID " + id + " not found"));
+        task.setTitle(taskDto.getTitle());
+        task.setDescription(taskDto.getDescription());
+        task.setStatus(taskDto.getStatus());
+        task.setDueDate(taskDto.getDueDate());
+        task.setPriority(taskDto.getPriority());
+        return taskRepository.save(task);
+    }
+
+    public void deleteTask(Task task ) {
+        taskRepository.delete(task);
     }
 }
 

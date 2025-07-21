@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Setter
 @Getter
-public class User {
+public class UserEntity {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;

@@ -23,22 +23,23 @@ public class Task {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
+    @Column
     private LocalDate dueDate;
     @Enumerated(EnumType.STRING)
     private Priority priority;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User createdBy;
+    private UserEntity createdBy;
 
     public enum Status {TO_DO, IN_PROGRESS, COMPLETED}
 
     public enum Priority {LOW, MEDIUM, HIGH}
 
-    public User getCreatedBy() {
+    public UserEntity getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(User createdBy) {
+    public void setCreatedBy(UserEntity createdBy) {
         this.createdBy = createdBy;
     }
 
